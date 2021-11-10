@@ -175,8 +175,9 @@ f.seek(0)
 final_puzzle = f.readlines()[4:7]
 final_puzzle = convert_text(final_puzzle)
 
-# Holds all the current puzzles
+# Get the initial heuristic value
 initial_heuristic = calculate_heuristic(initial_puzzle, final_puzzle)
+# Holds all the current puzzles, we add the initial state first
 state_list = [
     {
         "g": 0,
