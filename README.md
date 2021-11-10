@@ -1,4 +1,5 @@
 # A Star Search
+### By: Ethan Philpott
 
 ## Running
 To run, do `python3 main.py`

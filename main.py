@@ -93,6 +93,7 @@ def create_states(index, state_list, final_puzzle, count):
                 if(j + 1 < len(puzzle[i])):
                     count += generate_node(state_list[index], final_puzzle, i, j, i, j + 1, "R")
                 state_list.pop(index)
+    # Choose the next state
     choose_state(state_list, final_puzzle, count)
 
 def equal_states(state1, state2):
