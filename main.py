@@ -1,5 +1,7 @@
 import copy
 
+past_puzzles = []
+
 # Takes an array of text and converts it into the correct format for the 11 Puzzle problem
 def convert_text(text):
     # Strip lines
@@ -41,6 +43,9 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     # Swap blank with item above
     puzzle = new_state['puzzle']
     puzzle[i][j], puzzle[swap_i][swap_j] = puzzle[swap_i][swap_j], puzzle[i][j]
+    # If this is a duplicate state we just return because we don't count duplicate states
+    if (puzzle in past_puzzles):
+        return
     # Set up new h value
     new_state['h'] = calculate_heuristic(puzzle, final_puzzle)
     # Increment g value
@@ -50,6 +55,7 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     # Add f value
     new_state['f'].append(new_state['g'] + new_state['h'])
     state_list.append(new_state)
+    past_puzzles.append(new_state['puzzle'])
 
 # Creates new state for the 11 puzzle problem
 def create_states(index, state_list, final_puzzle):
@@ -88,7 +94,7 @@ def choose_state(state_list, final_puzzle):
     lowest_f = state_list[0]['f'][-1]
     lowest_index = 0
     for i in range(len(state_list)):
-        if state_list[i]['f'][0] < lowest_f:
+        if state_list[i]['f'][-1] < lowest_f:
             lowest_f = state_list[i]['f'][-1]
             lowest_index = i
     if (not equal_states(state_list[lowest_index]['puzzle'], final_puzzle)):
