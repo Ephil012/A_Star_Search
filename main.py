@@ -11,14 +11,14 @@ def convert_text(text):
     return text
 
 # Calculate manhattan distance
-def calculate_manhattan(state, goal, current_x, current_y):
+def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
     # Gets item
-    item = state[current_x][current_y]
+    item = puzzle[current_x][current_y]
     # Search 2d array for item
-    for x in range(len(goal)):
-        for y in range(len(goal[x])):
+    for x in range(len(goal_puzzle)):
+        for y in range(len(goal_puzzle[x])):
             # If item found and is not a blank space
-            if item == goal[x][y] and item != 0:
+            if item == goal_puzzle[x][y] and item != 0:
                 # Calculate manhattan distance
                 return abs(x - current_x) + abs(y - current_y)
             # If item found and is a blank space then we return 0
@@ -26,43 +26,75 @@ def calculate_manhattan(state, goal, current_x, current_y):
                 return 0
 
 # Calculate heuristic for the entire 11 puzzle state
-def calculate_heuristic(state, final):
+def calculate_heuristic(puzzle, final_puzzle):
     # Go through state and calculate sum of manhattan distances
     sum = 0
-    for i in range(len(state)):
-        for j in range(len(state[i])):
-            sum += calculate_manhattan(state, final, i, j)
+    for i in range(len(puzzle)):
+        for j in range(len(puzzle[i])):
+            sum += calculate_manhattan(puzzle, final_puzzle, i, j)
     return sum
 
+# Generates a new node for the 11 puzzle problem
+def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
+     # Copy state
+    new_state = copy.deepcopy(state)
+    # Swap blank with item above
+    puzzle = new_state['puzzle']
+    puzzle[i][j], puzzle[swap_i][swap_j] = puzzle[swap_i][swap_j], puzzle[i][j]
+    # Set up new h value
+    new_state['h'] = calculate_heuristic(puzzle, final_puzzle)
+    # Increment g value
+    new_state['g'] += 1
+    # Add action
+    new_state['a'].append(action)
+    # Add f value
+    new_state['f'].append(new_state['g'] + new_state['h'])
+    state_list.append(new_state)
+
 # Creates new state for the 11 puzzle problem
-def create_states(state):
-    for i in range(len(state)):
-        for j in range(len(state[i])):
-            if state[i][j] == 0:
+def create_states(index, state_list, final_puzzle):
+    # Get puzzle
+    puzzle = state_list[index]['puzzle']
+    # Find blank space
+    for i in range(len(puzzle)):
+        for j in range(len(puzzle[i])):
+            # Found a blank space
+            if puzzle[i][j] == 0:
                 # If we have an item above the blank
                 if(i - 1 >= 0):
-                    # Copy state
-                    up = copy.deepcopy(state)
-                    # Swap blank with item above
-                    up[i][j], up[i - 1][j] = up[i - 1][j], up[i][j]
+                    generate_node(state_list[index], final_puzzle, i, j, i - 1, j, "D")
                 # If we have an item below the blank
-                if(i + 1 < len(state)):
+                if(i + 1 < len(puzzle)):
                     # Copy state
-                    down = copy.deepcopy(state)
-                    # Swap blank with item below
-                    down[i][j], down[i + 1][j] = down[i + 1][j], down[i][j]
+                    generate_node(state_list[index], final_puzzle, i, j, i + 1, j, "U")
                 # If we have an item to the left of the blank
                 if(j - 1 >= 0):
-                    # Copy state
-                    left = copy.deepcopy(state)
-                    # Swap blank with item to the left
-                    left[i][j], left[i][j - 1] = left[i][j - 1], left[i][j]
+                    generate_node(state_list[index], final_puzzle, i, j, i, j - 1, "R")
                 # If we have an item to the right of the blank
-                if(j + 1 < len(state[i])):
-                    # Copy state
-                    right = copy.deepcopy(state)
-                    # Swap blank with item to the right
-                    right[i][j], right[i][j + 1] = right[i][j + 1], right[i][j]
+                if(j + 1 < len(puzzle[i])):
+                    generate_node(state_list[index], final_puzzle, i, j, i, j + 1, "L")
+                state_list.pop(index)
+    choose_state(state_list, final_puzzle)
+
+def equal_states(state1, state2):
+    # Check if states are equal
+    if state1 == state2:
+        return True
+    return False
+
+# Chooses state from puzzle list to expand next
+def choose_state(state_list, final_puzzle):
+    # Find lowest f value
+    lowest_f = state_list[0]['f'][-1]
+    lowest_index = 0
+    for i in range(len(state_list)):
+        if state_list[i]['f'][0] < lowest_f:
+            lowest_f = state_list[i]['f'][-1]
+            lowest_index = i
+    if (not equal_states(state_list[lowest_index]['puzzle'], final_puzzle)):
+        create_states(lowest_index, state_list, final_puzzle)
+    else:
+        print(state_list[lowest_index])
 
 # Get file name from command line
 #filename = input("Enter file name: ")
@@ -77,12 +109,26 @@ f = open(filename, 'r')
 # weight = float(weight)
 
 # Read file lines 1 to 3
-initial = f.readlines()[0:3]
-initial = convert_text(initial)
+initial_puzzle = f.readlines()[0:3]
+initial_puzzle = convert_text(initial_puzzle)
 
 # Reset readline to beginning
 f.seek(0)
 
 # Read file lines 5 to 7
-final = f.readlines()[4:7]
-final = convert_text(final)
+final_puzzle = f.readlines()[4:7]
+final_puzzle = convert_text(final_puzzle)
+
+# Holds all the current puzzles
+initial_heuristic = calculate_heuristic(initial_puzzle, final_puzzle)
+state_list = [
+    {
+        "g": 0,
+        "h": initial_heuristic,
+        "a": [],
+        "f": [initial_heuristic],
+        "puzzle": initial_puzzle
+    }   
+]
+
+choose_state(state_list, final_puzzle)
