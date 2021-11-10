@@ -55,8 +55,6 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     puzzle = new_state['puzzle']
     puzzle[i][j], puzzle[swap_i][swap_j] = puzzle[swap_i][swap_j], puzzle[i][j]
     # If this is a duplicate state we just return because we don't count duplicate states
-    if new_state['a'] == ['D', 'U']:
-        print("Duplicate state")
     if (puzzle in past_puzzles):
         return 0
     # Set up new h value
@@ -69,6 +67,7 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     new_state['f'].append(new_state['g'] + new_state['h'] * weight)
     state_list.append(new_state)
     past_puzzles.append(new_state['puzzle'])
+    # Returns 1 to increment counter
     return 1
 
 # Creates new state for the 11 puzzle problem
