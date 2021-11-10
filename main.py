@@ -1,7 +1,15 @@
 import copy
 
-weight = 1
-filename = "./samples/Input1.txt"
+# Get file name from command line
+filename = input("Enter file name: ")
+
+# Open file
+f = open(filename, 'r')
+
+# Get weight from command line
+weight = input("Enter weight: ")
+# Convert weight to float
+weight = float(weight)
 
 past_puzzles = []
 
@@ -95,38 +103,50 @@ def equal_states(state1, state2):
     return False
 
 def print_output(initial, state, count):
-    # Prints 2d list for initial puzzle
-    for i in range(len(initial)):
-        for j in range(len(initial[i])):
-            print(initial[i][j], end=" ")
-        print()
+    with open('./outputs/output.txt', 'w') as f:
+        # Prints 2d list for initial puzzle
+        for i in range(len(initial)):
+            for j in range(len(initial[i])):
+                print(initial[i][j], end=" ")
+                f.write(str(initial[i][j]) + " ")
+            print()
+            f.write("\n")
     
-    # Add newline
-    print()
-
-    # Prints 2d list for current state
-    for i in range(len(state['puzzle'])):
-        for j in range(len(state['puzzle'][i])):
-            print(state['puzzle'][i][j], end=" ")
+        # Add newline
         print()
+        f.write("\n")
 
-    # Add newline
-    print()
+        # Prints 2d list for current state
+        for i in range(len(state['puzzle'])):
+            for j in range(len(state['puzzle'][i])):
+                print(state['puzzle'][i][j], end=" ")
+                f.write(str(state['puzzle'][i][j]) + " ")
+            print()
+            f.write("\n")
 
-    # Print weight
-    print(float(weight))
+        # Add newline
+        print()
+        f.write("\n")
 
-    # Print depth
-    print(state['g'])
+        # Print weight
+        print(float(weight))
+        f.write(str(float(weight)) + "\n")
 
-    # Print count
-    print(count)
+        # Print depth
+        print(state['g'])
+        f.write(str(state['g']) + "\n")
 
-    # Print actions
-    print(" ".join(state['a']))
+        # Print count
+        print(count)
+        f.write(str(count) + "\n")
 
-    # Print f values
-    print(" ".join(str(x) for x in state['f']))
+        # Print actions
+        print(" ".join(state['a']))
+        f.write(" ".join(state['a']) + "\n")
+
+        # Print f values
+        print(" ".join(str(x) for x in state['f']))
+        f.write(" ".join(str(x) for x in state['f']))
 
 # Chooses state from puzzle list to expand next
 def choose_state(state_list, final_puzzle, count):
