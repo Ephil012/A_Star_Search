@@ -23,7 +23,7 @@ def convert_text(text):
     text = [[int(x) for x in line] for line in text]
     return text
 
-# Calculate manhattan distance, given a puzzle with coordinates current_x, current_y and the goal puzzle
+# Calculate manhattan distance, given a puzzle with coordinates current_x, current_y and the goal_puzzle
 def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
     # Gets item
     item = puzzle[current_x][current_y]
@@ -145,8 +145,8 @@ def print_output(initial, state, count):
         f.write(" ".join(state['a']) + "\n")
 
         # Print f values
-        print(" ".join(str(x) for x in state['f']))
-        f.write(" ".join(str(x) for x in state['f']))
+        print(" ".join(str(round(x, 4)) for x in state['f']))
+        f.write(" ".join(str(round(x, 4)) for x in state['f']))
 
 # Chooses state from puzzle list to expand next
 def choose_state(state_list, final_puzzle, count):
@@ -191,3 +191,5 @@ state_list = [
 past_puzzles.append(state_list[0]['puzzle'])
 
 choose_state(state_list, final_puzzle, 1)
+
+# Maybe make this more efficient by storing where the blank space is and also by ordering the list by f value
