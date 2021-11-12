@@ -271,5 +271,5 @@ state_list = [
 ]
 past_puzzles.append(state_list[0]['puzzle'])
 
-# Start the program
+# Start the program, include a count of 1 to include root
 create_states(state_list, final_puzzle, 1)

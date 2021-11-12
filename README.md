@@ -28,7 +28,7 @@ Weight: 1.0
 
 1.0
 7
-22
+19
 D R D L U L D
 7.0 7.0 7.0 7.0 7.0 7.0 7.0 7.0
 ```
@@ -49,7 +49,7 @@ Weight: 1.2
 
 1.2
 7
-22
+19
 D R D L U L D
 8.4 8.2 8.0 7.8 7.6 7.4 7.2 7.0
 ```
@@ -70,9 +70,9 @@ Weight: 1.4
 
 1.4
 7
-22
+19
 D R D L U L D
-9.799999999999999 9.399999999999999 9.0 8.6 8.2 7.8 7.4 7.0
+9.8 9.4 9.0 8.6 8.2 7.8 7.4 7.0
 ```
 
 ### Output2a.txt
@@ -112,9 +112,9 @@ Weight: 1.2
 
 1.2
 13
-29
+32
 R D D L L U R U R D R D L
-15.6 15.399999999999999 15.2 15.0 14.799999999999999 14.6 14.4 14.2 14.0 13.8 13.6 13.4 13.2 13.0
+15.6 15.4 15.2 15.0 14.8 14.6 14.4 14.2 14.0 13.8 13.6 13.4 13.2 13.0
 ```
 
 ### Output2c.txt
@@ -133,9 +133,9 @@ Weight: 1.4
 
 1.4
 13
-29
+32
 R D D L L U R U R D R D L
-18.2 17.799999999999997 17.4 17.0 16.6 16.2 15.799999999999999 15.399999999999999 15.0 14.6 14.2 13.8 13.4 13.0
+18.2 17.8 17.4 17.0 16.6 16.2 15.8 15.4 15.0 14.6 14.2 13.8 13.4 13.0
 ```
 
 ### Output3a.txt
@@ -154,7 +154,7 @@ Weight: 1.0
 
 1.0
 17
-169
+106
 R U R U L L D R D R R U L U L D R
 13.0 13.0 15.0 15.0 15.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0 17.0
 ```
@@ -175,9 +175,9 @@ Weight: 1.2
 
 1.2
 17
-125
+117
 R U R U L L D R D R R U L U L D R
-15.6 15.399999999999999 17.6 17.4 17.2 19.4 19.2 19.0 18.799999999999997 18.6 18.4 18.2 18.0 17.8 17.6 17.4 17.2 17.0
+15.6 15.4 17.6 17.4 17.2 19.4 19.2 19.0 18.8 18.6 18.4 18.2 18.0 17.8 17.6 17.4 17.2 17.0
 ```
 
 ### Output3c.txt
@@ -196,29 +196,26 @@ Weight: 1.4
 
 1.4
 17
-125
+117
 R U R U L L D R D R R U L U L D R
-18.2 17.799999999999997 20.2 19.799999999999997 19.4 21.799999999999997 21.4 21.0 20.6 20.2 19.799999999999997 19.4 19.0 18.6 18.2 17.8 17.4 17.0
+18.2 17.8 20.2 19.8 19.4 21.8 21.4 21.0 20.6 20.2 19.8 19.4 19.0 18.6 18.2 17.8 17.4 17.0
 ```
 
 ## Source Code
 ```python
+# Ethan Philpott
+# Project 1
+# AI
+# November 11, 2021
+# Professor Wong
+
 import copy
 
-# Get file name from command line
-filename = input("Enter file name: ")
-
-# Open file
-f = open(filename, 'r')
-
-# Get weight from command line
-weight = input("Enter weight: ")
-# Convert weight to float
-weight = float(weight)
-
-past_puzzles = []
-
-# Takes an array of text and converts it into the correct format for the 11 Puzzle problem
+# Takes a list of text and converts it into the correct format for the 11 Puzzle problem
+# Takes:
+#   text: list of strings representing the puzzle
+# Returns:
+#   text: a 2d list of strings representing the puzzle
 def convert_text(text):
     # Strip lines
     text = [line.strip() for line in text]
@@ -228,22 +225,34 @@ def convert_text(text):
     text = [[int(x) for x in line] for line in text]
     return text
 
-# Calculate manhattan distance, given a puzzle with coordinates current_x, current_y and the goal puzzle
-def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
+# Calculate manhattan distance
+# Takes:
+#   puzzle: 2d list of strings for the puzzle
+#   goal_puzzle: 2d list of strings for the goal puzzle
+#   i: int y coordinate of the current item
+#   j: int x coordinate of the current item
+# Returns:
+#   an int for manhattan distance
+def calculate_manhattan(puzzle, goal_puzzle, i, j):
     # Gets item
-    item = puzzle[current_x][current_y]
+    item = puzzle[i][j]
+    # If item is a blank space then we return 0
+    if item == 0:
+        return 0
     # Search 2d array for item
-    for x in range(len(goal_puzzle)):
-        for y in range(len(goal_puzzle[x])):
+    for y in range(len(goal_puzzle)):
+        for x in range(len(goal_puzzle[y])):
             # If item found and is not a blank space
-            if item == goal_puzzle[x][y] and item != 0:
+            if item == goal_puzzle[y][x] and item != 0:
                 # Calculate manhattan distance
-                return abs(x - current_x) + abs(y - current_y)
-            # If item found and is a blank space then we return 0
-            elif item == 0:
-                return 0
+                return abs(y - i) + abs(x - j)
 
 # Calculate heuristic for the entire 11 puzzle state
+# Takes:
+#   puzzle: 2d list of strings for the puzzle
+#   final_puzzle: 2d list of strings for the goal puzzle
+# Returns:
+#   an int for the sum of manhattan distances
 def calculate_heuristic(puzzle, final_puzzle):
     # Go through state and calculate sum of manhattan distances
     sum = 0
@@ -253,6 +262,16 @@ def calculate_heuristic(puzzle, final_puzzle):
     return sum
 
 # Generates a new node for the 11 puzzle problem
+# Takes:
+#   state: 2d list of strings for the puzzle
+#   final_puzzle: 2d list of strings for the goal puzzle
+#   i: int y coordinate of the current item
+#   j: int x coordinate of the current item
+#   swap_i: int y coordinate of the item to swap with
+#   swap_j: int x coordinate of the item to swap with
+#   action: string for the action taken
+# Returns:
+#   int representing if the node was added or not (1 if added, 0 if not)
 def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
      # Copy state
     new_state = copy.deepcopy(state)
@@ -268,44 +287,74 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     new_state['g'] += 1
     # Add action
     new_state['a'].append(action)
+    # Add new blank
+    new_state['blank'][0] = swap_i
+    new_state['blank'][1] = swap_j
     # Add f value
     new_state['f'].append(new_state['g'] + new_state['h'] * weight)
-    state_list.append(new_state)
+    # Add new state to lists
+    insert_in_order(state_list, new_state)
     past_puzzles.append(new_state['puzzle'])
     # Returns 1 to increment counter
     return 1
 
 # Creates new state for the 11 puzzle problem
-def create_states(index, state_list, final_puzzle, count):
+# Takes:
+#   state_list: list of dictionaries representing the current unexplored states
+#   final_puzzle: 2d list of strings for the goal puzzle
+#   counter: int for the number of states generated
+# Returns:
+#   None
+def create_states(state_list, final_puzzle, count):
     # Get puzzle
-    puzzle = state_list[index]['puzzle']
-    # Find blank space
-    for i in range(len(puzzle)):
-        for j in range(len(puzzle[i])):
-            # Found a blank space
-            if puzzle[i][j] == 0:
-                # If we have an item above the blank
-                if(i - 1 >= 0):
-                    count += generate_node(state_list[index], final_puzzle, i, j, i - 1, j, "U")
-                # If we have an item below the blank
-                if(i + 1 < len(puzzle)):
-                    # Copy state
-                    count += generate_node(state_list[index], final_puzzle, i, j, i + 1, j, "D")
-                # If we have an item to the left of the blank
-                if(j - 1 >= 0):
-                    count += generate_node(state_list[index], final_puzzle, i, j, i, j - 1, "L")
-                # If we have an item to the right of the blank
-                if(j + 1 < len(puzzle[i])):
-                    count += generate_node(state_list[index], final_puzzle, i, j, i, j + 1, "R")
-                state_list.pop(index)
-    choose_state(state_list, final_puzzle, count)
+    state = state_list[0]
+    puzzle = state['puzzle']
 
-def equal_states(state1, state2):
-    # Check if states are equal
-    if state1 == state2:
+    # Get i and j values from blank
+    i = state['blank'][0]
+    j = state['blank'][1]
+
+    # If we have an item above the blank generate a node
+    if(i - 1 >= 0):
+        count += generate_node(state, final_puzzle, i, j, i - 1, j, "U")
+    # If we have an item below the blank generate a node
+    if(i + 1 < len(puzzle)):
+        count += generate_node(state, final_puzzle, i, j, i + 1, j, "D")
+    # If we have an item to the left of the blank generate a node
+    if(j - 1 >= 0):
+        count += generate_node(state, final_puzzle, i, j, i, j - 1, "L")
+    # If we have an item to the right of the blank generate a node
+    if(j + 1 < len(puzzle[i])):
+        count += generate_node(state, final_puzzle, i, j, i, j + 1, "R")
+    
+    # Remove the state we explored from the state_list
+    state_list.remove(state)
+
+    # See if we have reached the goal, else we continue to generate nodes
+    if (not equal_puzzles(state_list[0]['puzzle'], final_puzzle)):
+        create_states(state_list, final_puzzle, count)
+    else:
+        print_output(initial_puzzle, state_list[0], count)
+
+# Checks if the puzzles are equal
+# Takes:
+#   puzzle1: 2d list of strings for the puzzle
+#   puzzle2: 2d list of strings for the puzzle
+# Returns:
+#   True if equal, False if not
+def equal_puzzles(puzzle1, puzzle2):
+    # Check if puzzles are equal
+    if puzzle1 == puzzle2:
         return True
     return False
 
+# Prints the output to the terminal and file
+# Takes:
+#   initial: 2d list of strings for the puzzle
+#   state: a dictionary representing the current state
+#   count: int for the number of states generated
+# Returns:
+#   None
 def print_output(initial, state, count):
     with open('./outputs/output.txt', 'w') as f:
         # Prints 2d list for initial puzzle
@@ -349,22 +398,44 @@ def print_output(initial, state, count):
         f.write(" ".join(state['a']) + "\n")
 
         # Print f values
-        print(" ".join(str(x) for x in state['f']))
-        f.write(" ".join(str(x) for x in state['f']))
+        print(" ".join(str(round(x, 4)) for x in state['f']))
+        f.write(" ".join(str(round(x, 4)) for x in state['f']))
 
-# Chooses state from puzzle list to expand next
-def choose_state(state_list, final_puzzle, count):
-    # Find lowest f value
-    lowest_f = state_list[0]['f'][-1]
-    lowest_index = 0
+# Insert in order of lowest f value to greatest
+# Takes:
+#   state_list: list of dictionaries representing the current unexplored states
+#   state: dictionary representing the new state to be added
+# Returns:
+#   state_list: list of dictionaries representing the current unexplored states
+def insert_in_order(state_list, state):
+    # If list is empty
+    if len(state_list) == 0:
+        state_list.append(state)
+        return state_list
+    # If list is not empty
     for i in range(len(state_list)):
-        if state_list[i]['f'][-1] < lowest_f:
-            lowest_f = state_list[i]['f'][-1]
-            lowest_index = i
-    if (not equal_states(state_list[lowest_index]['puzzle'], final_puzzle)):
-        create_states(lowest_index, state_list, final_puzzle, count)
-    else:
-        print_output(initial_puzzle, state_list[lowest_index], count)
+        # If state is less than or equal to current state
+        if state['f'][-1] <= state_list[i]['f'][-1]:
+            state_list.insert(i, state)
+            return state_list
+    # If state is greater than all states
+    state_list.append(state)
+    return state_list
+
+
+# Get file name from command line
+filename = input("Enter file name: ")
+
+# Open file
+f = open(filename, 'r')
+
+# Get weight from command line
+weight = input("Enter weight: ")
+# Convert weight to float
+weight = float(weight)
+
+# Holds all the old puzzles
+past_puzzles = []
 
 # Open file
 f = open(filename, 'r')
@@ -380,18 +451,31 @@ f.seek(0)
 final_puzzle = f.readlines()[4:7]
 final_puzzle = convert_text(final_puzzle)
 
-# Holds all the current puzzles
+# Get the initial heuristic value
 initial_heuristic = calculate_heuristic(initial_puzzle, final_puzzle)
+
+# Find the blank space
+blank = [0,0]
+for i in range(len(initial_puzzle)):
+        for j in range(len(initial_puzzle[i])):
+            # Found a blank space
+            if initial_puzzle[i][j] == 0:
+                blank[0] = i
+                blank[1] = j
+
+# Holds all the current puzzles, we add the initial state first
 state_list = [
     {
         "g": 0,
         "h": initial_heuristic,
         "a": [],
+        "blank": blank,
         "f": [initial_heuristic * weight],
         "puzzle": initial_puzzle
     }   
 ]
 past_puzzles.append(state_list[0]['puzzle'])
 
-choose_state(state_list, final_puzzle, 1)
+# Start the program, include a count of 1 to include root
+create_states(state_list, final_puzzle, 1)
 ```
