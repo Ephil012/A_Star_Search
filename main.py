@@ -24,23 +24,23 @@ def convert_text(text):
 # Takes:
 #   puzzle: 2d list of strings for the puzzle
 #   goal_puzzle: 2d list of strings for the goal puzzle
-#   current_x: int x coordinate of the current item
-#   current_y: int y coordinate of the current item
+#   i: int y coordinate of the current item
+#   j: int x coordinate of the current item
 # Returns:
 #   an int for manhattan distance
-def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
+def calculate_manhattan(puzzle, goal_puzzle, i, j):
     # Gets item
-    item = puzzle[current_x][current_y]
+    item = puzzle[i][j]
     # If item is a blank space then we return 0
     if item == 0:
         return 0
     # Search 2d array for item
-    for x in range(len(goal_puzzle)):
-        for y in range(len(goal_puzzle[x])):
+    for y in range(len(goal_puzzle)):
+        for x in range(len(goal_puzzle[y])):
             # If item found and is not a blank space
-            if item == goal_puzzle[x][y] and item != 0:
+            if item == goal_puzzle[y][x] and item != 0:
                 # Calculate manhattan distance
-                return abs(x - current_x) + abs(y - current_y)
+                return abs(y - i) + abs(x - j)
 
 # Calculate heuristic for the entire 11 puzzle state
 # Takes:
@@ -60,10 +60,10 @@ def calculate_heuristic(puzzle, final_puzzle):
 # Takes:
 #   state: 2d list of strings for the puzzle
 #   final_puzzle: 2d list of strings for the goal puzzle
-#   i: int x coordinate of the current item
-#   j: int y coordinate of the current item
-#   swap_i: int x coordinate of the item to swap with
-#   swap_j: int y coordinate of the item to swap with
+#   i: int y coordinate of the current item
+#   j: int x coordinate of the current item
+#   swap_i: int y coordinate of the item to swap with
+#   swap_j: int x coordinate of the item to swap with
 #   action: string for the action taken
 # Returns:
 #   int representing if the node was added or not (1 if added, 0 if not)
@@ -271,4 +271,5 @@ state_list = [
 ]
 past_puzzles.append(state_list[0]['puzzle'])
 
+# Start the program
 create_states(state_list, final_puzzle, 1)
