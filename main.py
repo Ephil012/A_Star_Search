@@ -87,7 +87,7 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     # Swap blank with item above
     puzzle = new_state['puzzle']
     puzzle[i][j], puzzle[swap_i][swap_j] = puzzle[swap_i][swap_j], puzzle[i][j]
-    # If this is a duplicate state we just return because we don't count duplicate states
+    # If this is a duplicate state we just return 0 because we don't count duplicate states
     if (puzzle in past_puzzles):
         return 0
     # Set up new h value
@@ -98,6 +98,7 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     new_state['a'].append(action)
     # Add f value
     new_state['f'].append(new_state['g'] + new_state['h'] * weight)
+    # Add to lists
     state_list.append(new_state)
     past_puzzles.append(new_state['puzzle'])
     # Returns 1 to increment counter
@@ -132,6 +133,7 @@ def create_states(index, state_list, final_puzzle, count):
                 # If we have an item to the right of the blank
                 if(j + 1 < len(puzzle[i])):
                     count += generate_node(state_list[index], final_puzzle, i, j, i, j + 1, "R")
+                # Remove node we just explored
                 state_list.pop(index)
     # Choose the next state
     choose_state(state_list, final_puzzle, count)
@@ -213,9 +215,11 @@ def choose_state(state_list, final_puzzle, count):
     lowest_f = state_list[0]['f'][-1]
     lowest_index = 0
     for i in range(len(state_list)):
+        # If we find a lower f value then update the lowest_f value and lowest_index
         if state_list[i]['f'][-1] < lowest_f:
             lowest_f = state_list[i]['f'][-1]
             lowest_index = i
+    # If we found the solution then print, else keep going
     if (not equal_puzzles(state_list[lowest_index]['puzzle'], final_puzzle)):
         create_states(lowest_index, state_list, final_puzzle, count)
     else:
@@ -249,4 +253,5 @@ state_list = [
 ]
 past_puzzles.append(state_list[0]['puzzle'])
 
+# Start the program, include 1 for root node
 choose_state(state_list, final_puzzle, 1)
