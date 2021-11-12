@@ -31,6 +31,9 @@ def convert_text(text):
 def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
     # Gets item
     item = puzzle[current_x][current_y]
+    # If item is a blank space then we return 0
+    if item == 0:
+        return 0
     # Search 2d array for item
     for x in range(len(goal_puzzle)):
         for y in range(len(goal_puzzle[x])):
@@ -38,9 +41,6 @@ def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
             if item == goal_puzzle[x][y] and item != 0:
                 # Calculate manhattan distance
                 return abs(x - current_x) + abs(y - current_y)
-            # If item found and is a blank space then we return 0
-            elif item == 0:
-                return 0
 
 # Calculate heuristic for the entire 11 puzzle state
 # Takes:
@@ -87,6 +87,7 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     new_state['blank'][1] = swap_j
     # Add f value
     new_state['f'].append(new_state['g'] + new_state['h'] * weight)
+    # Add new state to lists
     insert_in_order(state_list, new_state)
     past_puzzles.append(new_state['puzzle'])
     # Returns 1 to increment counter
@@ -94,7 +95,11 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
 
 # Creates new state for the 11 puzzle problem
 # Takes:
-
+#   state_list: list of dictionaries representing the current unexplored states
+#   final_puzzle: 2d list of strings for the goal puzzle
+#   counter: int for the number of states generated
+# Returns:
+#   None
 def create_states(state_list, final_puzzle, count):
     # Get puzzle
     state = state_list[0]
@@ -116,10 +121,11 @@ def create_states(state_list, final_puzzle, count):
     # If we have an item to the right of the blank generate a node
     if(j + 1 < len(puzzle[i])):
         count += generate_node(state, final_puzzle, i, j, i, j + 1, "R")
+    
     # Remove the state we explored from the state_list
     state_list.remove(state)
 
-    # Choose the next state
+    # See if we have reached the goal, else we continue to generate nodes
     if (not equal_puzzles(state_list[0]['puzzle'], final_puzzle)):
         create_states(state_list, final_puzzle, count)
     else:
@@ -190,7 +196,12 @@ def print_output(initial, state, count):
         print(" ".join(str(round(x, 4)) for x in state['f']))
         f.write(" ".join(str(round(x, 4)) for x in state['f']))
 
-# Insert in order
+# Insert in order of lowest f value to greatest
+# Takes:
+#   state_list: list of dictionaries representing the current unexplored states
+#   state: dictionary representing the new state to be added
+# Returns:
+#   state_list: list of dictionaries representing the current unexplored states
 def insert_in_order(state_list, state):
     # If list is empty
     if len(state_list) == 0:
