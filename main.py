@@ -1,3 +1,10 @@
+# Ethan Philpott
+# Project 1
+# AI
+# November 11, 2021
+# Professor Wong
+# main.py
+
 import copy
 
 # Get file name from command line
@@ -13,7 +20,11 @@ weight = float(weight)
 
 past_puzzles = []
 
-# Takes an array of text and converts it into the correct format for the 11 Puzzle problem
+# Takes a list of text and converts it into the correct format for the 11 Puzzle problem
+# Takes:
+#   text: list of strings representing the puzzle
+# Returns:
+#   text: a 2d list of strings representing the puzzle
 def convert_text(text):
     # Strip lines
     text = [line.strip() for line in text]
@@ -23,22 +34,34 @@ def convert_text(text):
     text = [[int(x) for x in line] for line in text]
     return text
 
-# Calculate manhattan distance, given a puzzle with coordinates current_x, current_y and the goal_puzzle
-def calculate_manhattan(puzzle, goal_puzzle, current_x, current_y):
+# Calculate manhattan distance
+# Takes:
+#   puzzle: 2d list of strings for the puzzle
+#   goal_puzzle: 2d list of strings for the goal puzzle
+#   i: int y coordinate of the current item
+#   j: int x coordinate of the current item
+# Returns:
+#   an int for manhattan distance
+def calculate_manhattan(puzzle, goal_puzzle, i, j):
     # Gets item
-    item = puzzle[current_x][current_y]
+    item = puzzle[i][j]
+    # If item is a blank space then we return 0
+    if item == 0:
+        return 0
     # Search 2d array for item
-    for x in range(len(goal_puzzle)):
-        for y in range(len(goal_puzzle[x])):
+    for y in range(len(goal_puzzle)):
+        for x in range(len(goal_puzzle[y])):
             # If item found and is not a blank space
-            if item == goal_puzzle[x][y] and item != 0:
+            if item == goal_puzzle[y][x] and item != 0:
                 # Calculate manhattan distance
-                return abs(x - current_x) + abs(y - current_y)
-            # If item found and is a blank space then we return 0
-            elif item == 0:
-                return 0
+                return abs(y - i) + abs(x - j)
 
 # Calculate heuristic for the entire 11 puzzle state
+# Takes:
+#   puzzle: 2d list of strings for the puzzle
+#   final_puzzle: 2d list of strings for the goal puzzle
+# Returns:
+#   an int for the sum of manhattan distances
 def calculate_heuristic(puzzle, final_puzzle):
     # Go through state and calculate sum of manhattan distances
     sum = 0
@@ -48,6 +71,16 @@ def calculate_heuristic(puzzle, final_puzzle):
     return sum
 
 # Generates a new node for the 11 puzzle problem
+# Takes:
+#   state: 2d list of strings for the puzzle
+#   final_puzzle: 2d list of strings for the goal puzzle
+#   i: int y coordinate of the current item
+#   j: int x coordinate of the current item
+#   swap_i: int y coordinate of the item to swap with
+#   swap_j: int x coordinate of the item to swap with
+#   action: string for the action taken
+# Returns:
+#   int representing if the node was added or not (1 if added, 0 if not)
 def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
      # Copy state
     new_state = copy.deepcopy(state)
@@ -71,6 +104,13 @@ def generate_node(state, final_puzzle, i, j, swap_i, swap_j, action):
     return 1
 
 # Creates new state for the 11 puzzle problem
+# Takes:
+#   index: int location of current state
+#   state_list: list of dictionaries representing the current unexplored states
+#   final_puzzle: 2d list of strings for the goal puzzle
+#   counter: int for the number of states generated
+# Returns:
+#   None
 def create_states(index, state_list, final_puzzle, count):
     # Get puzzle
     puzzle = state_list[index]['puzzle']
@@ -96,12 +136,25 @@ def create_states(index, state_list, final_puzzle, count):
     # Choose the next state
     choose_state(state_list, final_puzzle, count)
 
-def equal_states(state1, state2):
-    # Check if states are equal
-    if state1 == state2:
+# Checks if the puzzles are equal
+# Takes:
+#   puzzle1: 2d list of strings for the puzzle
+#   puzzle2: 2d list of strings for the puzzle
+# Returns:
+#   True if equal, False if not
+def equal_puzzles(puzzle1, puzzle2):
+    # Check if puzzles are equal
+    if puzzle1 == puzzle2:
         return True
     return False
 
+# Prints the output to the terminal and file
+# Takes:
+#   initial: 2d list of strings for the puzzle
+#   state: a dictionary representing the current state
+#   count: int for the number of states generated
+# Returns:
+#   None
 def print_output(initial, state, count):
     with open('./outputs/output.txt', 'w') as f:
         # Prints 2d list for initial puzzle
@@ -148,7 +201,13 @@ def print_output(initial, state, count):
         print(" ".join(str(round(x, 4)) for x in state['f']))
         f.write(" ".join(str(round(x, 4)) for x in state['f']))
 
-# Chooses state from puzzle list to expand next
+# Insert in order of lowest f value to greatest
+# Takes:
+#   state_list: list of dictionaries representing the current unexplored states
+#   final_puzzle: 2d list of strings for the goal puzzle
+#   count: int for the number of states generated
+# Returns:
+#   None
 def choose_state(state_list, final_puzzle, count):
     # Find lowest f value
     lowest_f = state_list[0]['f'][-1]
@@ -157,7 +216,7 @@ def choose_state(state_list, final_puzzle, count):
         if state_list[i]['f'][-1] < lowest_f:
             lowest_f = state_list[i]['f'][-1]
             lowest_index = i
-    if (not equal_states(state_list[lowest_index]['puzzle'], final_puzzle)):
+    if (not equal_puzzles(state_list[lowest_index]['puzzle'], final_puzzle)):
         create_states(lowest_index, state_list, final_puzzle, count)
     else:
         print_output(initial_puzzle, state_list[lowest_index], count)
@@ -191,5 +250,3 @@ state_list = [
 past_puzzles.append(state_list[0]['puzzle'])
 
 choose_state(state_list, final_puzzle, 1)
-
-# Maybe make this more efficient by storing where the blank space is and also by ordering the list by f value
