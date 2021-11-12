@@ -223,6 +223,7 @@ weight = input("Enter weight: ")
 # Convert weight to float
 weight = float(weight)
 
+# Holds all the old puzzles
 past_puzzles = []
 
 # Takes a list of text and converts it into the correct format for the 11 Puzzle problem
